@@ -22,23 +22,26 @@ export const PostCard = ({ post, index }: Props) => {
     <Link
       href={`/posts/${post.slug}`}
       data-reveal="up"
-      style={{ "--reveal-delay": `${index * 0.08}s` } as CSSVars}
-      className="card-lift block p-6 sm:p-8 relative overflow-hidden"
+      style={{ "--reveal-delay": `${index * 0.06}s` } as CSSVars}
+      className="card-lift block p-5 sm:p-6 relative overflow-hidden"
     >
       <div
-        className="absolute left-0 top-0 bottom-0 w-2"
+        className="absolute left-0 top-0 bottom-0 w-1.5"
         style={{ backgroundColor: accentColor }}
         aria-hidden
       />
-      <div className="pl-4 sm:pl-6">
+      <div className="pl-4 sm:pl-5">
         <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
           {post.date} · {post.readingTimeMin} min
         </p>
-        <h3 className="text-h3 mt-3 font-[family-name:var(--font-display)] font-black leading-tight">
+        <h3
+          className="mt-2 font-[family-name:var(--font-display)] font-bold leading-snug"
+          style={{ fontSize: "clamp(1.125rem, 0.875rem + 0.5vw, 1.375rem)", letterSpacing: "-0.01em" }}
+        >
           {post.title}
         </h3>
         {post.description && (
-          <p className="text-body mt-3 text-[var(--color-grey-dark)] line-clamp-2">
+          <p className="text-body-sm mt-2 text-[var(--color-grey-dark)] line-clamp-2">
             {post.description}
           </p>
         )}
