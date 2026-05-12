@@ -1,7 +1,17 @@
 import Link from "next/link";
 
 export const SiteHeader = () => (
-  <header className="sticky top-0 z-30 backdrop-blur-md" style={{ height: "var(--header-height)" }}>
+  <header
+    data-color-scheme="paper"
+    className="sticky top-0 z-30"
+    style={{
+      height: "var(--header-height)",
+      backgroundColor: "color-mix(in srgb, var(--color-bg) 70%, transparent)",
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      color: "var(--color-black)",
+    }}
+  >
     <nav className="container-wide flex items-center justify-between h-full">
       <Link href="/" className="font-[family-name:var(--font-display)] font-black tracking-tight text-xl">
         1119WJ

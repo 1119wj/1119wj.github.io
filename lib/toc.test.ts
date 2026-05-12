@@ -37,4 +37,16 @@ describe("extractTocItems", () => {
       { id: "x", title: "Spaced", level: 2 },
     ]);
   });
+
+  it("ignores .heading-anchor children when reading title", () => {
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <h2 id="intro">Intro<a class="heading-anchor" href="#intro">#</a></h2>
+      <h3 id="detail">Detail<a class="heading-anchor" href="#detail">#</a></h3>
+    `;
+    expect(extractTocItems(container)).toEqual([
+      { id: "intro", title: "Intro", level: 2 },
+      { id: "detail", title: "Detail", level: 3 },
+    ]);
+  });
 });

@@ -4,6 +4,15 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 export const metadata = { title: "About — 1119wj" };
 
+const TECH_STACK = [
+  "TypeScript",
+  "Next.js",
+  "React",
+  "Tailwind CSS",
+  "TanStack Query",
+  "Zustand",
+];
+
 export default function AboutPage() {
   return (
     <>
@@ -18,17 +27,67 @@ export default function AboutPage() {
             className="mt-3 font-[family-name:var(--font-display)] font-black"
             style={{ fontSize: "clamp(2rem, 1.25rem + 2vw, 3rem)", lineHeight: 1.1, letterSpacing: "-0.02em" }}
           >
-            1119WJ
+            도원진
           </h1>
-          <div className="mt-8 space-y-4 text-body-lg">
-            <p>안녕하세요. 웹 만드는 사람이에요.</p>
+          <div className="mt-6 space-y-4 text-body-lg">
+            <p>프론트엔드 개발자 도원진입니다.</p>
             <p>
-              주로 Next.js · TypeScript · React 로 일해요. 가끔 만난 문제를 여기 정리합니다.
-            </p>
-            <p>
-              연락: <a className="underline underline-offset-4 hover:no-underline" href="https://github.com/1119wj">github.com/1119wj</a>
+              현재는 AI 레시피 플랫폼{" "}
+              <a
+                className="font-medium underline underline-offset-[3px] hover:no-underline"
+                href="https://recipio.kr"
+                target="_blank"
+                rel="noreferrer"
+              >
+                레시피오
+              </a>{" "}
+              프로젝트를 운영 중입니다.
             </p>
           </div>
+
+          <section className="mt-12">
+            <h2 className="text-body-sm font-semibold uppercase tracking-wider text-[var(--color-grey-dark)]">
+              Tech stack
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {TECH_STACK.map((t) => (
+                <li
+                  key={t}
+                  className="rounded border px-2.5 py-1 text-body-sm border-[var(--color-border)]"
+                >
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="text-body-sm font-semibold uppercase tracking-wider text-[var(--color-grey-dark)]">
+              Contact
+            </h2>
+            <ul className="mt-4 space-y-2 text-body">
+              <li>
+                GitHub —{" "}
+                <a
+                  className="font-medium underline underline-offset-[3px] hover:no-underline"
+                  href="https://github.com/1119wj"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  github.com/1119wj
+                </a>
+              </li>
+              <li>
+                Email —{" "}
+                <a
+                  className="font-medium underline underline-offset-[3px] hover:no-underline"
+                  href="mailto:1119wj@naver.com"
+                >
+                  1119wj@naver.com
+                </a>
+              </li>
+            </ul>
+          </section>
         </div>
       </main>
       <SiteFooter />
