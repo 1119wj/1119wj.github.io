@@ -6,7 +6,7 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, ".") },
   },
   test: {
-    environment: "node",
+    environment: "jsdom",
     include: ["**/*.test.ts"],
   },
 });
