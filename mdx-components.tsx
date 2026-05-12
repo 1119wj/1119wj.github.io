@@ -12,7 +12,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     h2: (props) => (
       <h2
-        className="mt-10 mb-3 font-[family-name:var(--font-display)] font-bold scroll-mt-24"
+        className="mt-12 mb-3 font-[family-name:var(--font-display)] font-bold scroll-mt-24"
         style={{ fontSize: "clamp(1.25rem, 1rem + 0.75vw, 1.625rem)", lineHeight: 1.25, letterSpacing: "-0.01em" }}
         {...props}
       />
@@ -24,10 +24,15 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {...props}
       />
     ),
-    p: (props) => <p className="text-body my-4 leading-relaxed" {...props} />,
+    p: (props) => <p className="text-body my-4 leading-[1.75]" {...props} />,
     ul: (props) => <ul className="my-4 list-disc pl-6 space-y-1" {...props} />,
     ol: (props) => <ol className="my-4 list-decimal pl-6 space-y-1" {...props} />,
-    a: (props) => <a className="underline underline-offset-2 hover:no-underline" {...props} />,
+    a: (props) => (
+      <a
+        className="font-medium underline underline-offset-[3px] hover:no-underline"
+        {...props}
+      />
+    ),
     blockquote: (props) => (
       <blockquote
         className="border-l-2 pl-4 my-6 italic text-[var(--color-grey-dark)]"
@@ -36,11 +41,25 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       />
     ),
     pre: (props) => (
-      <div data-color-scheme="dark" className="my-6 rounded-xl overflow-hidden">
-        <pre className="p-4 overflow-x-auto text-sm" {...props} />
+      <div className="my-6 overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-black)]">
+        <pre
+          className="overflow-x-auto p-4 text-[13px] leading-[1.6] text-[var(--color-white)]"
+          {...props}
+        />
       </div>
     ),
-    code: (props) => <code className="font-mono text-[0.9em]" {...props} />,
+    code: ({ className, ...props }) => {
+      const isBlock = typeof className === "string" && className.includes("language-");
+      if (isBlock) {
+        return <code className={className} {...props} />;
+      }
+      return (
+        <code
+          className="rounded border border-[color-mix(in_srgb,currentColor_20%,transparent)] bg-[color-mix(in_srgb,currentColor_8%,transparent)] px-1 py-0.5 font-mono text-[0.875em]"
+          {...props}
+        />
+      );
+    },
     table: (props) => (
       <div className="my-6 overflow-x-auto">
         <table className="w-full text-left border-collapse text-body-sm" {...props} />

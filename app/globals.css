@@ -343,3 +343,21 @@
 @media (max-width: 499px) {
   :root { --page-margin: 1rem; --section-py: var(--space-06); }
 }
+
+/* ══════════════════════════════
+   HEADING ANCHOR — hover-only "#" link
+   ══════════════════════════════ */
+
+.heading-anchor {
+  margin-left: 0.5rem;
+  opacity: 0;
+  text-decoration: none;
+  color: var(--color-grey);
+  font-weight: 400;
+  transition: opacity 0.15s ease;
+}
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+.heading-anchor:focus {
+  opacity: 1;
+}

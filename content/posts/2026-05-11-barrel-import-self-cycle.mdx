@@ -123,7 +123,7 @@ flowchart LR
     route["route.ts"] --> actions["actions/curation"]
     actions --> api["entities/recipe/model/api"]
     api --> barrel["@/entities/recipe (barrel)"]
-    barrel -. re-exports ./model/api .-> api
+    barrel -.->|re-exports model/api| api
 
     style barrel fill:#ffe4e4,stroke:#c00
     style api fill:#ffe4e4,stroke:#c00
