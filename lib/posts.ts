@@ -10,6 +10,7 @@ export type PostMeta = {
   title: string;
   date: string;
   description: string;
+  category: string;
   accent: Accent;
   readingTimeMin: number;
 };
@@ -38,11 +39,18 @@ export const loadPosts = async (dir: string = DEFAULT_DIR): Promise<PostMeta[]> 
         rawDate instanceof Date
           ? rawDate.toISOString().slice(0, 10)
           : String(rawDate ?? "");
+      const category = String(data.category ?? "").trim();
+      if (!category) {
+        throw new Error(
+          `Post "${slug}" is missing required frontmatter: category. Every post must declare a category (e.g. 디버깅, 리팩토링, 회고).`,
+        );
+      }
       return {
         slug,
         title: String(data.title ?? slug),
         date,
         description: String(data.description ?? ""),
+        category,
         accent: (data.accent ?? "spice") as Accent,
         readingTimeMin: Math.max(1, Math.round(stats.minutes)),
       };
