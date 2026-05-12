@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Toc } from "@/components/article/Toc";
 import { loadPostBySlug, loadPosts } from "@/lib/posts";
 
 export const generateStaticParams = async () => {
@@ -29,8 +30,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <ScrollReveal />
       <SiteHeader />
       <main data-color-scheme="paper">
-        <div className="mx-auto max-w-4xl px-6 sm:px-8">
-          <header className="pt-10 sm:pt-16 pb-8 sm:pb-10">
+        <div className="mx-auto max-w-6xl px-6 sm:px-8">
+          <header className="pt-10 sm:pt-16 pb-8 sm:pb-10 max-w-3xl">
             <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
               {post.date} · {post.readingTimeMin} min read
             </p>
@@ -49,9 +50,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             )}
           </header>
 
-          <article className="pb-16">
-            <PostBody />
-          </article>
+          <div className="relative lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-12 pb-16">
+            <article id="post-body" className="min-w-0 max-w-3xl">
+              <PostBody />
+            </article>
+            <Toc containerSelector="#post-body" />
+          </div>
 
           <div className="pb-16">
             <Link href="/" className="text-body-sm font-semibold underline underline-offset-4 hover:no-underline">
