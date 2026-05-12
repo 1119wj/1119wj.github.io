@@ -63,12 +63,12 @@
 
 @layer base {
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+  html { scroll-behavior: smooth; font-size: 16px; overflow-x: clip; }
   body {
     font-family: var(--font-body);
     font-size: 1rem; line-height: 1.5;
     color: var(--color-fg); background: var(--color-bg);
-    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; overflow-x: clip;
     text-wrap: pretty; word-break: keep-all;
   }
 }

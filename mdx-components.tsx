@@ -40,10 +40,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {...props}
       />
     ),
-    pre: (props) => (
-      <div className="my-6 overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-black)]">
+    pre: ({ className, ...props }) => (
+      <div className="my-6 overflow-hidden rounded-md border border-[var(--color-border)]">
         <pre
-          className="overflow-x-auto p-4 text-[13px] leading-[1.6] text-[var(--color-white)]"
+          className={`overflow-x-auto p-4 text-[13px] leading-[1.6] ${className ?? ""}`}
           {...props}
         />
       </div>
