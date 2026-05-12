@@ -33,7 +33,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <div className="mx-auto max-w-6xl px-6 sm:px-8">
           <header className="pt-10 sm:pt-16 pb-8 sm:pb-10 max-w-3xl">
             <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
-              {post.date} · {post.readingTimeMin} min read
+              {post.date}
             </p>
             <h1
               className="mt-3 font-[family-name:var(--font-display)] font-black"

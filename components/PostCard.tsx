@@ -32,7 +32,7 @@ export const PostCard = ({ post, index }: Props) => {
       />
       <div className="pl-4 sm:pl-5">
         <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
-          {post.date} · {post.readingTimeMin} min
+          {post.date}
         </p>
         <h3
           className="mt-2 font-[family-name:var(--font-display)] font-bold leading-snug"
