@@ -1,0 +1,208 @@
+---
+title: "대AI시대 코어 지키기 - TypeScript 판별 유니온"
+date: 2026-07-03
+description: "boolean 세 개로 흩어진 상태를 판별 유니온으로 묶어, 불가능한 상태를 타입에서 지운 리팩토링."
+category: "TypeScript"
+accent: spice
+---
+
+### 판별 유니온이란?
+
+공통 판별자 필드(`kind`·`type`·`status` 같은 리터럴 값) 하나로 여러 갈래를 구분하는 타입입니다. 각 갈래는 자기만의 필드를 갖고, 판별자로 분기하면 그 갈래의 데이터만 좁혀져 안전하게 접근됩니다. "이 상태일 때만 이 데이터가 있다"를 타입으로 못 박아, 말이 안 되는 조합을 애초에 만들 수 없게 하는 패턴입니다.
+
+판별 유니온을 복습한 김에, 레시피오 코드베이스에 판별유니온이 미적용된 안티패턴이 있는지 훑어봤습니다. 큐레이션 생성 도구의 `Workspace` 컴포넌트가 걸렸습니다. 로딩 여부, 생성 결과, 에러 메시지가 각각 별도의 `useState`로 흩어져 있었고, 생성 버튼을 누를 때마다 세 개를 손으로 맞춰 리셋하고 있었습니다.
+
+지금 이 코드는 매번 세 값을 올바른 순서로 비워주고 있었고, 이는 휴먼에러가 발생하기 좋은 상황입니다.
+
+## 판별 유니온이 막는 것
+
+상호배타적인 상태를 boolean 여러 개로 들면, 타입은 불가능한 조합까지 허용합니다.
+
+```ts
+type State = {
+  isLoading: boolean;
+  data: Recipe[] | null;
+  error: string | null;
+};
+```
+
+예를들어, 이 타입은 `isLoading`이 참이면서 `data`와 `error`가 동시에 채워진 값을 막지 않습니다. "로딩 중인데 결과도 있고 에러도 있다"는 상태가 문법적으로 합법입니다. 
+
+실제로 가능한 상태는 로딩·성공·에러 세 가지뿐인데, 타입은 여덟 가지를 열어둡니다. 그 격차만큼 방어 코드가 붙고, "로딩 끝났는데 플래그를 끄지 않은 상황" 같은 버그가 발생할 수 있습니다.
+
+판별 유니온(discriminated union)은 공통 판별자 필드 하나로 갈래를 나눠, 각 갈래가 자기 데이터만 갖게 합니다.
+
+```ts
+type State =
+  | { status: "loading" }
+  | { status: "success"; data: Recipe[] }
+  | { status: "error"; message: string };
+```
+
+`data`는 `success`에만, `message`는 `error`에만 존재합니다. "로딩인데 결과가 있다"는 값은 이제 타입으로 만들 수 없습니다. 불가능한 상태를 표현 불가능하게 만드는 것, 이 한 문장이 판별 유니온의 전부입니다.
+
+## 이미 알게 모르게 썼던 곳
+
+판별 유니온이 낯선 패턴은 아닙니다. 네이티브 앱과 웹뷰가 주고받는 메시지 타입이 이미 판별 유니온이었습니다.
+
+```ts
+export type AppToWebMessage =
+  | { type: "NOTIFICATION_STATUS"; payload: { status: NotificationStatus } }
+  | { type: "AUTH_DIAG"; payload: AuthDiagBridgePayload }
+  | { type: "KEYBOARD_STATE"; payload: KeyboardStatePayload }
+  | { type: "APP_CONTEXT"; payload: AppContextPayload };
+```
+
+여기선 판별자가 `status`가 아니라 `type`입니다. 이름은 달라도 역할은 같습니다.(kind, type, status, ...) `type`에 따라 `payload`의 모양이 달라지고, 각 갈래는 자기 타입에만 있는 필드를 갖습니다. 키보드 높이 `height`는 `KEYBOARD_STATE`에만, 플랫폼 `platform`은 `APP_CONTEXT`에만 있습니다.
+
+```ts
+function handle(msg: AppToWebMessage) {
+  if (msg.type === "KEYBOARD_STATE") {
+    msg.payload.height; // KeyboardStatePayload로 좁혀져 접근 가능
+  }
+  if (msg.type === "APP_CONTEXT") {
+    msg.payload.platform; // 접근 가능
+    msg.payload.height; // APP_CONTEXT엔 height가 없어 컴파일이 막음
+  }
+}
+```
+
+키보드 메시지인데 `platform`을 읽거나, 앱 컨텍스트 메시지인데 `height`를 읽는 프로토콜 위반이 컴파일 타임에 걸립니다. 네이티브에서 온 메시지를 `type`으로 분기하는 순간, 그 갈래에 맞는 payload 모양이 확정됩니다.
+
+## 전형적인 AI 코드. 판별유니온 미적용 안티패턴
+
+한 컴포넌트에 `useState<... | null>(null)`이 여러 개 몰려 있고, 그 옆에 boolean 로딩 플래그가 있는 모양입니다. 저희 큐레이션을 생성하는 `Workspace` 컴포넌트가 정확히 이 예시에 해당합니다.
+
+```ts
+const [loading, setLoading] = useState(false);
+const [localResult, setLocalResult] = useState<GenerateCurationOutput | null>(null);
+const [error, setError] = useState<string | null>(null);
+
+const onGenerate = async () => {
+  setLoading(true);
+  setError(null);
+  setLocalResult(null);
+  try {
+    const r = await generateCurationViaApi({ ... });
+    setLocalResult(r);
+  } catch (e) {
+    setError(toMessage(e));
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+코드를 한줄 한줄 보면 동작은 하는 코드라는 걸 알 수 있습니다. AI에게 아무런 제약없이 코드를 맡기면 흔히 볼 수 있는 장면이죠.
+
+여기서 문제는 한 번의 생성이 세 setter를 건드립니다. 시작할 때 셋을 리셋하고, 성공하면 결과를 채우고, 실패하면 에러를 채우고, `finally`에서 로딩을 내립니다. 이 순서 중 하나라도 빠지면 화면이 어긋납니다. 
+
+`setLocalResult(null)` 같은 초기화를 하는 것을 잊거나 순서가 달라지면, 원하는 동작이 틀어질 수 있습니다. 지금은 세 줄이 다 제자리에 있어 괜찮지만, 그 괜찮음을 타입이 아니라 사람이 지키고 있었습니다.
+
+## 봐준 것과 잡은 것
+
+하지만 flat한 여러개의 boolean이 보인다고 다 잡을 일은 아닙니다. 같은 코드베이스의 `useImageLoader`도 `isLoading` / `isLoaded` / `hasError` 세 boolean을 반환하지만, 세 값이 독립된 `useState`가 아니라 단일 `status`에서 파생된 계산값이기 때문입니다.
+
+```ts
+// 이해를 돕기 위한 예시
+const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+return {
+  isLoading: status === "loading",
+  isLoaded: status === "loaded",
+  hasError: status === "error",
+};
+```
+
+진실의 원천이 `status` 하나라, `isLoading`과 `hasError`가 동시에 참인 값은 구조적으로 나올 수 없습니다. 
+
+결론적으로, 리턴값이나 상태의 boolean 개수가 아니라, 그 boolean들의 출처가 하나냐 여럿이냐가 기준입니다.
+
+그래서 코드스멜을 판단하는 질문을 다음과 같이 정리했습니다. 
+
+1. 각 상태가 자기만의 데이터를 갖는가.
+2. 그리고 한 번의 전이가 여러 setter를 동시에 건드리는가.
+
+위의 `useImageLoader`는 로딩·성공·에러에 딸린 데이터가 없고 전이가 `setStatus` 한 번뿐이라 둘 다 아니오입니다. 
+
+하지만, `Workspace`는 성공이 결과를, 에러가 메시지를 들고 전이마다 세 setter를 맞춰야 하니 둘 다 예입니다. 잡을 곳은 후자입니다.
+
+## 어느 형태로 묶을까
+
+판별 유니온을 상태에 적용하는 길은 둘입니다. 하나는 상태를 판별 유니온 객체 하나로 묶어 `useState` 하나에 담는 방식이고(형태 A), 다른 하나는 앞의 `useImageLoader`처럼 `status` 문자열만 판별자로 두고 나머지 값은 별도 `useState`로 관리하는 방식입니다(형태 B). 둘 다 판별 유니온을 쓰는 게 맞고, 어느 쪽이 맞는지는 상태가 데이터를 들고 다니는지가 가릅니다.
+
+`Workspace`의 성공 상태는 생성 결과를, 에러 상태는 메시지를 들고 다닙니다. 형태 B로 두면 그 결과와 메시지가 `status` 옆에서 다시 독립 `useState`로 떠다니고, 이는 곧 여전히 새로운 같은 문제를 발생시킵니다. 
+
+위의 `useImageLoader`가 형태 B로 충분했던 건 로딩·성공·에러에 붙은 데이터가 없어서였고, `Workspace`는 각 kind마다 데이터가 달라지므로 형태 A가 필요했습니다.
+
+이제 `Workspace` 를 아래와 같이 고쳤습니다. 각 `status` 마다 데이터 타입이 다르고, 하나의 state에서 관리하도록 수정했습니다.
+
+```ts
+type GenerationState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; result: GenerateCurationOutput }
+  | { status: "error"; message: string };
+
+const [generation, setGeneration] = useState<GenerationState>({ status: "idle" });
+```
+
+이제 새로운 `onGenerate`는 상태를 통째로 한번만 교체하는 형태로 바뀝니다.
+
+```ts
+const onGenerate = async () => {
+  if (!selected) return;
+  setGeneration({ status: "loading" });
+  try {
+    const r = await generateCurationViaApi({ ... });
+    setGeneration({ status: "success", result: r });
+  } catch (e) {
+    setGeneration({ status: "error", message: toMessage(e) });
+  }
+};
+```
+
+리셋 세 줄이 사라졌습니다. `loading`으로 전이하는 순간 이전 결과와 에러는 타입에서 존재할 수 없으니, 손으로 비울 대상이 없습니다. `finally`도 없앴습니다. 
+
+화면 쪽은 판별자로 좁혀 읽습니다.
+
+```tsx
+<button disabled={generation.status === "loading"}>
+  {generation.status === "loading" ? "생성 중..." : "단일 생성"}
+</button>
+
+{generation.status === "error" && <pre>{generation.message}</pre>}
+```
+
+`generation.status === "error"` 안에서만 `generation.message`에 접근합니다. 에러가 아닌데 에러 메시지를 읽는 코드는 컴파일이 막습니다.
+
+## 무엇이 달라졌나?
+
+표현 가능한 상태가 여덟 가지에서 네 가지로 줄었습니다. `loading`·`localResult`·`error`의 조합은 2×2×2로 여덟 가지였고 그중 넷은 말이 안 되는 값이었는데, 판별 유니온은 딱 네 가지만 만들 수 있습니다. 없앤 넷이 바로 버그가 발생하던 자리입니다.
+
+setter도 세 개에서 하나로 줄었습니다. 정확성이 "매번 세 setter를 올바른 순서로 부른다"는 규율에서, "새 상태 객체 하나로 갈아끼운다"는 타입 보장으로 넘어갔습니다. 
+
+재생성 실패 때 옛 결과가 남는 일, 로딩이 안 꺼지는 일, 렌더 분기 순서에 결과가 좌우되는 일. 앞에서 걱정한 이 세 가지가 이제 코드 리뷰가 아니라 컴파일러가 막는 대상입니다.
+
+## 재발 방지
+
+재발을 막는 건 결국 두 질문을 팀의 공용 기준으로 만드는 일입니다. 상호배타적 상태를 새로 짤 때, 각 상태가 자기 데이터를 갖고 한 전이가 여러 setter를 건드리면 판별 유니온으로 묶습니다. 그렇지 않으면 문자열 하나로 충분합니다. 
+
+이 기준을 학습 문서에 형태 A(상태를 객체로 묶기)와 형태 B(판별자만 분리하고 나머지는 따로 두기)로 나눠 적어두고, 판별자 곁에 남긴 다른 상태가 특정 갈래의 데이터인지 갈래와 무관한 부기인지까지 감별하도록 정리했습니다.
+
+타입 차원의 회귀 방지도 하나 더 있습니다. 판별 유니온으로 짠 상태는 테스트로 붙일 수 있습니다.
+
+```ts
+type Tagged =
+  | { status: "loading" }
+  | { status: "success"; result: Output }
+  | { status: "error"; message: string };
+
+// @ts-expect-error 로딩이면서 결과를 갖는 값은 만들 수 없어야 한다
+const illegal: Tagged = { status: "loading", result };
+```
+
+`@ts-expect-error`는 바로 아래 줄에서 에러가 나기를 기대하는 지시자입니다. 어느 날 누군가 타입을 flat하게 되돌려 이 조합이 합법이 되면, `@ts-expect-error`가 빨간 줄로 떠오릅니다. 
+
+### 마치며
+
+이번 작업에서 TS 코어를 복습하며 실제 레시피오 코드에서 안티패턴을 리팩토링 해봤습니다. 실제로 AI가 자주 실수하는 부분인 만큼 재발방지와 Skill을 강화하는 방식도 필요해보입니다.
