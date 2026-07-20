@@ -1,8 +1,11 @@
 import type { MDXComponents } from "mdx/types";
 
+import { YouTubePlayer } from "@/components/YouTubePlayer";
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
+    YouTubePlayer,
     h1: (props) => (
       <h1
         className="mt-12 mb-4 font-[family-name:var(--font-display)] font-black"
