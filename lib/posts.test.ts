@@ -50,6 +50,18 @@ describe("loadPosts", () => {
     await expect(loadPosts(dir)).rejects.toThrow(/category/);
   });
 
+  it("throws when posts in the same category use different accents", async () => {
+    writeFileSync(
+      join(dir, "2026-03-01-a.mdx"),
+      "---\ntitle: A\ndate: 2026-03-01\ndescription: a\ncategory: 디버깅\naccent: spice\n---\nbody",
+    );
+    writeFileSync(
+      join(dir, "2026-03-02-b.mdx"),
+      "---\ntitle: B\ndate: 2026-03-02\ndescription: b\ncategory: 디버깅\naccent: aqua\n---\nbody",
+    );
+    await expect(loadPosts(dir)).rejects.toThrow(/conflicting accents/);
+  });
+
   it("ignores non-mdx files", async () => {
     writeFileSync(join(dir, "readme.txt"), "ignore me");
     const posts = await loadPosts(dir);

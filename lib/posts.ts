@@ -3,7 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import readingTime from "reading-time";
 
-export type Accent = "spice" | "aqua" | "lavender" | "yellow" | "blue";
+export type Accent = "spice" | "aqua" | "lavender" | "yellow" | "blue" | "green" | "orange";
 
 export type PostMeta = {
   slug: string;
@@ -56,6 +56,18 @@ export const loadPosts = async (dir: string = DEFAULT_DIR): Promise<PostMeta[]> 
       };
     }),
   );
+
+  const accentByCategory = new Map<string, { accent: Accent; slug: string }>();
+  for (const post of posts) {
+    const seen = accentByCategory.get(post.category);
+    if (!seen) {
+      accentByCategory.set(post.category, { accent: post.accent, slug: post.slug });
+    } else if (seen.accent !== post.accent) {
+      throw new Error(
+        `Category "${post.category}" has conflicting accents: "${seen.accent}" (${seen.slug}) vs "${post.accent}" (${post.slug}). Posts in the same category must share the same accent.`,
+      );
+    }
+  }
 
   return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
 };
