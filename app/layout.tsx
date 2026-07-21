@@ -22,6 +22,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://1119wj.github.io"),
   title: "1119wj — blog",
   description: "building things on the web",
 };

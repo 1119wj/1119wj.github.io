@@ -1,6 +1,27 @@
+import { Children, type ReactNode } from "react";
 import type { MDXComponents } from "mdx/types";
 
 import { YouTubePlayer } from "@/components/YouTubePlayer";
+
+/* 「— "인용구"」 패턴: 긴 대시 뒤에 붙는 인용은 본문 흐름의 곁가지라 회색으로 낮춘다 */
+const DASH_QUOTE = /(—\s*(?:"[^"\n]*"|“[^”\n]*”))/g;
+
+function withDashAsides(children: ReactNode): ReactNode {
+  return Children.map(children, (child) => {
+    if (typeof child !== "string" || !child.includes("—")) return child;
+    const parts = child.split(DASH_QUOTE);
+    if (parts.length === 1) return child;
+    return parts.map((part, i) =>
+      i % 2 === 1 ? (
+        <span key={i} className="dash-aside">
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    );
+  });
+}
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -27,22 +48,22 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {...props}
       />
     ),
-    p: (props) => <p className="text-body my-4 leading-[1.75]" {...props} />,
+    p: ({ children, ...props }) => (
+      <p className="text-body my-4 leading-[1.75]" {...props}>
+        {withDashAsides(children)}
+      </p>
+    ),
     ul: (props) => <ul className="my-4 list-disc pl-6 space-y-1" {...props} />,
-    ol: (props) => <ol className="my-4 list-decimal pl-6 space-y-1" {...props} />,
+    ol: (props) => <ol className="post-ol my-5" {...props} />,
+    strong: (props) => <strong className="post-strong" {...props} />,
+    hr: () => <hr className="post-hr" />,
     a: (props) => (
       <a
         className="font-medium underline underline-offset-[3px] hover:no-underline"
         {...props}
       />
     ),
-    blockquote: (props) => (
-      <blockquote
-        className="border-l-2 pl-4 my-6 italic text-[var(--color-grey-dark)]"
-        style={{ borderColor: "var(--color-grey)" }}
-        {...props}
-      />
-    ),
+    blockquote: (props) => <blockquote className="post-quote" {...props} />,
     pre: ({ className, ...props }) => (
       <div className="my-6 overflow-hidden rounded-md border border-[var(--color-border)]">
         <pre
@@ -51,21 +72,11 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         />
       </div>
     ),
-    code: ({ className, ...props }) => {
-      const isBlock = typeof className === "string" && className.includes("language-");
-      if (isBlock) {
-        return <code className={className} {...props} />;
-      }
-      return (
-        <code
-          className="rounded border border-[color-mix(in_srgb,currentColor_20%,transparent)] bg-[color-mix(in_srgb,currentColor_8%,transparent)] px-1 py-0.5 font-mono text-[0.875em]"
-          {...props}
-        />
-      );
-    },
+    /* 인라인/블록 구분은 CSS(:not(pre) > code)가 한다 — shiki 블록의 code에는 클래스가 없어서 여기서는 판별 불가 */
+    code: (props) => <code {...props} />,
     table: (props) => (
       <div className="my-6 overflow-x-auto">
-        <table className="w-full text-left border-collapse text-body-sm" {...props} />
+        <table className="post-table w-full text-left border-collapse text-body-sm" {...props} />
       </div>
     ),
     th: (props) => (

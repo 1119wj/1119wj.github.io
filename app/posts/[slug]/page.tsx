@@ -1,8 +1,11 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Comments } from "@/components/Comments";
+import { PostNav } from "@/components/PostNav";
 import { Toc } from "@/components/article/Toc";
 import { loadPostBySlug, loadPosts } from "@/lib/posts";
 
@@ -20,8 +23,14 @@ export const generateMetadata = async ({ params }: { params: Promise<{ slug: str
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await loadPostBySlug(slug);
+  const posts = await loadPosts();
+  const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
+
+  // posts는 최신순 정렬 — 이전 글(더 오래된 글)은 인덱스 +1, 다음 글(더 새 글)은 -1
+  const index = posts.indexOf(post);
+  const prevPost = posts[index + 1] ?? null;
+  const nextPost = posts[index - 1] ?? null;
 
   const PostBody = (await import(`@/content/posts/${slug}.mdx`)).default;
 
@@ -43,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 {post.category}
               </span>
               <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
-                {post.date}
+                {post.date} · {post.readingTimeMin}분
               </p>
             </div>
             <h1
@@ -62,10 +71,20 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </header>
 
           <div className="relative lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-12 pb-16">
-            <article id="post-body" className="min-w-0 max-w-3xl">
+            <article
+              id="post-body"
+              className="min-w-0 max-w-3xl"
+              style={{ "--post-accent": `var(--color-${post.accent})` } as CSSProperties}
+            >
               <PostBody />
             </article>
             <Toc containerSelector="#post-body" />
+          </div>
+
+          <Comments />
+
+          <div className="pb-8">
+            <PostNav prev={prevPost} next={nextPost} />
           </div>
 
           <div className="pb-16">

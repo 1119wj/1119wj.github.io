@@ -6,3 +6,4 @@ out
 .env*
 .claude
 tsconfig.tsbuildinfo
+.playwright-mcp

@@ -1,4 +1,4 @@
-import { PostCard } from "@/components/PostCard";
+import { PostsExplorer } from "@/components/PostsExplorer";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -19,18 +19,20 @@ export default async function Home() {
               style={{ fontSize: "clamp(1.75rem, 1rem + 1.5vw, 2.5rem)", letterSpacing: "-0.02em" }}
               data-reveal="up"
             >
-              Posts
+              Posts{" "}
+              <sup
+                className="font-bold text-[var(--color-grey)]"
+                style={{ fontSize: "0.45em", letterSpacing: "0" }}
+              >
+                {posts.length}
+              </sup>
             </h1>
             {posts.length === 0 ? (
               <p className="text-body-lg text-[var(--color-grey-dark)]">
                 아직 글이 없어요.
               </p>
             ) : (
-              <div className="flex flex-col gap-3 sm:gap-4">
-                {posts.map((post, i) => (
-                  <PostCard key={post.slug} post={post} index={i} />
-                ))}
-              </div>
+              <PostsExplorer posts={posts} />
             )}
           </div>
         </section>

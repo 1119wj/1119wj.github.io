@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { Accent, PostMeta } from "@/lib/posts";
 
-const ACCENT_CSS_VAR: Record<Accent, string> = {
+export const ACCENT_CSS_VAR: Record<Accent, string> = {
   spice: "var(--color-spice)",
   aqua: "var(--color-aqua)",
   lavender: "var(--color-lavender)",
   yellow: "var(--color-yellow)",
   blue: "var(--color-blue)",
+  green: "var(--color-green)",
+  orange: "var(--color-orange)",
 };
 
 type Props = {
@@ -33,7 +35,7 @@ export const PostCard = ({ post, index }: Props) => {
           {post.category}
         </span>
         <p className="text-body-sm text-[var(--color-grey-dark)] font-medium">
-          {post.date}
+          {post.date} · {post.readingTimeMin}분
         </p>
       </div>
       <h3
