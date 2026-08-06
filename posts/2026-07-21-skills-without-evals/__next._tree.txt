@@ -1,0 +1,9 @@
+:HL["/_next/static/chunks/179msvdyywvbq.css","style"]
+:HL["/_next/static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/5c285b27cdda1fe8-s.p.0yo6-5yoeeudq.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/8d617d005f4d73b0-s.p.01-93foa8~zbp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Pretendard_Bold-s.p.0fjtkubmj4wmi.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Pretendard_Medium-s.p.0bmf7-ims7d2~.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Pretendard_Regular-s.p.03ginm53upljq.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Pretendard_SemiBold-s.p.0tcmjtvhw_7x5.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"posts","param":null,"prefetchHints":0,"slots":{"children":{"name":"slug","param":{"type":"d","key":"2026-07-21-skills-without-evals","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"_tNnTe3NEFX_ygDuELa16"}
