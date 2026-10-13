@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export const MermaidClient = () => {
+  const pathname = usePathname();
+
   useEffect(() => {
     const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
     if (blocks.length === 0) return;
@@ -27,7 +30,7 @@ export const MermaidClient = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 };
